@@ -1,97 +1,69 @@
 import { useState } from "react";
 
-const InputRow = ({ label, icon, value, onChange, unit, min, max, step = 1, isLast }) => (
-  <div style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    paddingBottom: isLast ? 0 : "20px",
-    marginBottom: isLast ? 0 : "20px",
-    borderBottom: isLast ? "none" : "1px solid rgba(255,255,255,0.06)",
-  }}>
-    <span style={{ fontSize: "20px", width: "28px", textAlign: "center" }}>{icon}</span>
-    <div style={{ flex: 1 }}>
-      <div style={{ color: "#6b8fa3", fontSize: "11px", letterSpacing: "0.1em", marginBottom: "6px" }}>
+const HOT_TEMP = 100;
+
+function NumInput({ label, value, onChange, unit, min, max }) {
+  return (
+    <div style={{ marginBottom: "20px" }}>
+      <label style={{ display: "block", color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.1em", marginBottom: "8px" }}>
         {label}
-      </div>
+      </label>
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         <input
           type="range"
           min={min}
           max={max}
-          step={step}
           value={value}
           onChange={e => onChange(Number(e.target.value))}
-          style={{ flex: 1, accentColor: "#e8d5a3", cursor: "pointer" }}
+          style={{ flex: 1, accentColor: "#e8d5a3", cursor: "pointer", height: "4px" }}
         />
-        <div style={{
-          color: "#e8d5a3",
-          fontSize: "16px",
-          fontWeight: "bold",
-          minWidth: "80px",
-          textAlign: "right",
-        }}>
-          {value.toLocaleString()} <span style={{ fontSize: "12px", color: "#a89060" }}>{unit}</span>
+        <div style={{ display: "flex", alignItems: "baseline", gap: "4px", minWidth: "80px", justifyContent: "flex-end" }}>
+          <span style={{ color: "#e8d5a3", fontSize: "22px", fontWeight: "bold" }}>{value}</span>
+          <span style={{ color: "#a89060", fontSize: "13px" }}>{unit}</span>
         </div>
       </div>
     </div>
-  </div>
-);
-
-const StatBadge = ({ label, value, highlight }) => (
-  <div style={{
-    background: highlight ? "rgba(232,213,163,0.12)" : "rgba(255,255,255,0.04)",
-    border: `1px solid ${highlight ? "rgba(232,213,163,0.3)" : "rgba(255,255,255,0.08)"}`,
-    borderRadius: "10px",
-    padding: "10px 16px",
-    minWidth: "110px",
-  }}>
-    <div style={{ color: "#6b8fa3", fontSize: "10px", letterSpacing: "0.1em", marginBottom: "4px" }}>{label}</div>
-    <div style={{ color: highlight ? "#e8d5a3" : "#8aa0b0", fontSize: "15px", fontWeight: "bold" }}>{value}</div>
-  </div>
-);
+  );
+}
 
 export default function App() {
-  const [coldTemp, setColdTemp] = useState(15);
-  const [coldAmount, setColdAmount] = useState(1000);
-  const [hotTemp, setHotTemp] = useState(100);
-  const [targetTemp, setTargetTemp] = useState(42);
+  const [coldTemp, setColdTemp] = useState(20);
+  const [targetTemp, setTargetTemp] = useState(38);
+  const [total, setTotal] = useState(150);
 
-  const isValid = hotTemp > targetTemp && targetTemp > coldTemp;
+  const isValid = targetTemp > coldTemp && targetTemp < HOT_TEMP;
 
-  const hotAmount = isValid
-    ? Math.round((coldAmount * (targetTemp - coldTemp)) / (hotTemp - targetTemp))
-    : null;
+  let coldG = null;
+  let hotG = null;
 
-  const totalAmount = hotAmount !== null ? coldAmount + hotAmount : null;
-
-  const mixedTemp = hotAmount !== null
-    ? Math.round((coldAmount * coldTemp + hotAmount * hotTemp) / (coldAmount + hotAmount))
-    : null;
+  if (isValid) {
+    coldG = Math.round(total * (targetTemp - HOT_TEMP) / (coldTemp - HOT_TEMP));
+    hotG = total - coldG;
+    // clamp negatives just in case
+    if (coldG < 0) coldG = 0;
+    if (hotG < 0) hotG = 0;
+  }
 
   return (
     <div style={{
       minHeight: "100vh",
-      background: "linear-gradient(135deg, #0a1628 0%, #0d2137 50%, #0a1628 100%)",
+      background: "linear-gradient(160deg, #0a1628 0%, #0d2137 60%, #0a1628 100%)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       fontFamily: "'Georgia', serif",
       padding: "20px",
     }}>
-      <div style={{ width: "100%", maxWidth: "480px" }}>
+      <div style={{ width: "100%", maxWidth: "420px" }}>
+
         {/* Title */}
-        <div style={{ textAlign: "center", marginBottom: "40px" }}>
-          <div style={{ fontSize: "48px", marginBottom: "8px" }}>🛁</div>
-          <h1 style={{
-            color: "#e8d5a3",
-            fontSize: "28px",
-            fontWeight: "normal",
-            letterSpacing: "0.12em",
-            margin: "0 0 6px 0",
-          }}>お湯の計算</h1>
-          <p style={{ color: "#6b8fa3", fontSize: "13px", letterSpacing: "0.1em", margin: 0 }}>
-            水とお湯を混ぜる量を計算します
+        <div style={{ textAlign: "center", marginBottom: "36px" }}>
+          <div style={{ fontSize: "44px", marginBottom: "8px" }}>🌡️</div>
+          <h1 style={{ color: "#e8d5a3", fontSize: "24px", fontWeight: "normal", letterSpacing: "0.12em", margin: "0 0 6px 0" }}>
+            ぬるま湯メーカー
+          </h1>
+          <p style={{ color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.08em", margin: 0 }}>
+            水とわかしたてのお湯（100°C）を混ぜる量を計算
           </p>
         </div>
 
@@ -100,54 +72,96 @@ export default function App() {
           background: "rgba(255,255,255,0.04)",
           border: "1px solid rgba(232,213,163,0.15)",
           borderRadius: "16px",
-          padding: "28px",
-          marginBottom: "20px",
+          padding: "28px 28px 8px",
+          marginBottom: "16px",
         }}>
-          <InputRow label="水の温度" icon="🚰" value={coldTemp} onChange={setColdTemp} unit="°C" min={0} max={40} />
-          <InputRow label="水の量" icon="💧" value={coldAmount} onChange={setColdAmount} unit="mL" min={100} max={10000} step={100} />
-          <InputRow label="お湯の温度" icon="♨️" value={hotTemp} onChange={setHotTemp} unit="°C" min={41} max={100} />
-          <InputRow label="目標温度" icon="🌡️" value={targetTemp} onChange={setTargetTemp} unit="°C" min={coldTemp + 1} max={hotTemp - 1} isLast />
+          <NumInput
+            label="💧 今の水温（測ってね）"
+            value={coldTemp}
+            onChange={setColdTemp}
+            unit="°C"
+            min={1}
+            max={40}
+          />
+          <NumInput
+            label="🎯 目標の温度"
+            value={targetTemp}
+            onChange={v => setTargetTemp(Math.min(99, Math.max(coldTemp + 1, v)))}
+            unit="°C"
+            min={coldTemp + 1}
+            max={99}
+          />
+          <NumInput
+            label="⚖️ 作りたい量"
+            value={total}
+            onChange={setTotal}
+            unit="g"
+            min={50}
+            max={2000}
+          />
         </div>
 
         {/* Result */}
         <div style={{
           background: isValid
-            ? "linear-gradient(135deg, rgba(232,213,163,0.12), rgba(180,140,80,0.08))"
-            : "rgba(255,255,255,0.03)",
-          border: `1px solid ${isValid ? "rgba(232,213,163,0.35)" : "rgba(255,80,80,0.25)"}`,
+            ? "linear-gradient(135deg, rgba(232,213,163,0.1), rgba(180,140,80,0.06))"
+            : "rgba(255,80,80,0.05)",
+          border: `1px solid ${isValid ? "rgba(232,213,163,0.35)" : "rgba(255,80,80,0.2)"}`,
           borderRadius: "16px",
           padding: "28px",
-          textAlign: "center",
         }}>
           {!isValid ? (
-            <p style={{ color: "#e87070", fontSize: "14px", margin: 0, letterSpacing: "0.05em" }}>
-              ⚠️ 目標温度は水温より高く、お湯の温度より低くしてください
+            <p style={{ color: "#e87070", fontSize: "13px", textAlign: "center", margin: 0 }}>
+              ⚠️ 目標温度は水温より高く、100°C未満にしてください
             </p>
           ) : (
             <>
-              <p style={{ color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.12em", margin: "0 0 16px 0" }}>
-                必要なお湯の量
+              <p style={{ color: "#6b8fa3", fontSize: "11px", letterSpacing: "0.12em", textAlign: "center", margin: "0 0 20px 0" }}>
+                こうやって混ぜてね
               </p>
-              <div style={{ color: "#e8d5a3", fontSize: "56px", fontWeight: "bold", lineHeight: 1, marginBottom: "6px" }}>
-                {hotAmount?.toLocaleString()}
+              <div style={{ display: "flex", gap: "12px" }}>
+                <div style={{
+                  flex: 1,
+                  background: "rgba(100,160,220,0.1)",
+                  border: "1px solid rgba(100,160,220,0.25)",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  textAlign: "center",
+                }}>
+                  <div style={{ fontSize: "22px", marginBottom: "4px" }}>💧</div>
+                  <div style={{ color: "#8ab4cc", fontSize: "11px", letterSpacing: "0.08em", marginBottom: "8px" }}>水</div>
+                  <div style={{ color: "#b0d4e8", fontSize: "36px", fontWeight: "bold", lineHeight: 1 }}>{coldG}</div>
+                  <div style={{ color: "#6b8fa3", fontSize: "13px", marginTop: "4px" }}>g</div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", color: "#6b8fa3", fontSize: "20px" }}>+</div>
+                <div style={{
+                  flex: 1,
+                  background: "rgba(220,140,80,0.1)",
+                  border: "1px solid rgba(220,140,80,0.25)",
+                  borderRadius: "12px",
+                  padding: "16px",
+                  textAlign: "center",
+                }}>
+                  <div style={{ fontSize: "22px", marginBottom: "4px" }}>♨️</div>
+                  <div style={{ color: "#cc9a6b", fontSize: "11px", letterSpacing: "0.08em", marginBottom: "8px" }}>お湯（100°C）</div>
+                  <div style={{ color: "#e8b87a", fontSize: "36px", fontWeight: "bold", lineHeight: 1 }}>{hotG}</div>
+                  <div style={{ color: "#a87840", fontSize: "13px", marginTop: "4px" }}>g</div>
+                </div>
               </div>
-              <div style={{ color: "#a89060", fontSize: "18px", marginBottom: "24px" }}>mL</div>
-              <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-                <StatBadge label="合計" value={`${totalAmount?.toLocaleString()} mL`} />
-                <StatBadge label="実際の温度" value={`${mixedTemp}°C`} highlight />
+              <div style={{
+                marginTop: "16px",
+                textAlign: "center",
+                color: "#4a6a7a",
+                fontSize: "12px",
+              }}>
+                合計 {total}g ／ 仕上がり約 {targetTemp}°C
               </div>
             </>
           )}
         </div>
 
-        <p style={{
-          textAlign: "center",
-          color: "#3a5568",
-          fontSize: "11px",
-          marginTop: "20px",
-          letterSpacing: "0.05em",
-        }}>
-          熱量保存の法則に基づく計算
+        <p style={{ textAlign: "center", color: "#2a3f50", fontSize: "11px", marginTop: "16px", letterSpacing: "0.05em" }}>
+          熱量保存の法則による計算
         </p>
       </div>
     </div>
