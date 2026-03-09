@@ -139,6 +139,13 @@ export default function App() {
           padding: "28px 28px 8px",
           marginBottom: "16px",
         }}>
+          <TotalInput
+            label="⚖️ 作りたい量"
+            value={total}
+            onChange={setTotal}
+            min={1}
+            max={2000}
+          />
           <NumInput
             label="💧 今の水温（測ってね）"
             value={coldTemp}
@@ -154,13 +161,6 @@ export default function App() {
             unit="°C"
             min={coldTemp + 1}
             max={99}
-          />
-          <TotalInput
-            label="⚖️ 作りたい量"
-            value={total}
-            onChange={setTotal}
-            min={1}
-            max={2000}
           />
         </div>
 
