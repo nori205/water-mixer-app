@@ -26,6 +26,70 @@ function NumInput({ label, value, onChange, unit, min, max }) {
   );
 }
 
+function TotalInput({ label, value, onChange, min, max }) {
+  const [text, setText] = useState(String(value));
+
+  const handleText = (e) => {
+    setText(e.target.value);
+    const n = parseInt(e.target.value, 10);
+    if (!isNaN(n) && n >= min && n <= max) onChange(n);
+  };
+
+  const handleBlur = () => {
+    const n = parseInt(text, 10);
+    if (isNaN(n) || n < min) { onChange(min); setText(String(min)); }
+    else if (n > max) { onChange(max); setText(String(max)); }
+    else { setText(String(n)); }
+  };
+
+  const handleSlider = (e) => {
+    const n = Number(e.target.value);
+    onChange(n);
+    setText(String(n));
+  };
+
+  return (
+    <div style={{ marginBottom: "8px" }}>
+      <label style={{ display: "block", color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.1em", marginBottom: "8px" }}>
+        {label}
+      </label>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          onChange={handleSlider}
+          style={{ flex: 1, accentColor: "#e8d5a3", cursor: "pointer", height: "4px" }}
+        />
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", minWidth: "90px", justifyContent: "flex-end" }}>
+          <input
+            type="number"
+            value={text}
+            onChange={handleText}
+            onBlur={handleBlur}
+            min={min}
+            max={max}
+            style={{
+              width: "64px",
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(232,213,163,0.3)",
+              borderRadius: "6px",
+              color: "#e8d5a3",
+              fontSize: "18px",
+              fontWeight: "bold",
+              textAlign: "right",
+              padding: "2px 6px",
+              outline: "none",
+            }}
+          />
+          <span style={{ color: "#a89060", fontSize: "13px" }}>g</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [coldTemp, setColdTemp] = useState(20);
   const [targetTemp, setTargetTemp] = useState(38);
@@ -91,12 +155,11 @@ export default function App() {
             min={coldTemp + 1}
             max={99}
           />
-          <NumInput
+          <TotalInput
             label="⚖️ 作りたい量"
             value={total}
             onChange={setTotal}
-            unit="g"
-            min={50}
+            min={1}
             max={2000}
           />
         </div>
