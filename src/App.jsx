@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 const HOT_TEMP = 100;
+const PASSWORD = "ku-pu25";
+const STORAGE_KEY = "nori_auth";
 
 function NumInput({ label, value, onChange, unit, min, max }) {
   return (
@@ -49,7 +51,7 @@ function TotalInput({ label, value, onChange, min, max }) {
   };
 
   return (
-    <div style={{ marginBottom: "8px" }}>
+    <div style={{ marginBottom: "20px" }}>
       <label style={{ display: "block", color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.1em", marginBottom: "8px" }}>
         {label}
       </label>
@@ -90,10 +92,102 @@ function TotalInput({ label, value, onChange, min, max }) {
   );
 }
 
+function PasswordScreen({ onUnlock }) {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (input === PASSWORD) {
+      localStorage.setItem(STORAGE_KEY, "ok");
+      onUnlock();
+    } else {
+      setError(true);
+      setInput("");
+      setTimeout(() => setError(false), 2000);
+    }
+  };
+
+  return (
+    <div style={{
+      minHeight: "100vh",
+      background: "linear-gradient(160deg, #0a1628 0%, #0d2137 60%, #0a1628 100%)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontFamily: "'Georgia', serif",
+      padding: "20px",
+    }}>
+      <div style={{ width: "100%", maxWidth: "360px", textAlign: "center" }}>
+        <div style={{ fontSize: "48px", marginBottom: "12px" }}>🍞</div>
+        <h1 style={{ color: "#e8d5a3", fontSize: "20px", fontWeight: "normal", letterSpacing: "0.15em", margin: "0 0 6px 0" }}>
+          のり米粉パン研究室
+        </h1>
+        <p style={{ color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.08em", margin: "0 0 36px 0" }}>
+          フォロワー限定ツール
+        </p>
+
+        <form onSubmit={handleSubmit}>
+          <input
+            type="password"
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            placeholder="パスワードを入力"
+            autoComplete="current-password"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              background: "rgba(255,255,255,0.06)",
+              border: `1px solid ${error ? "rgba(255,80,80,0.6)" : "rgba(232,213,163,0.25)"}`,
+              borderRadius: "10px",
+              color: "#e8d5a3",
+              fontSize: "16px",
+              padding: "14px 16px",
+              outline: "none",
+              textAlign: "center",
+              letterSpacing: "0.2em",
+              marginBottom: "12px",
+              transition: "border 0.2s",
+            }}
+          />
+          {error && (
+            <p style={{ color: "#e87070", fontSize: "13px", margin: "0 0 12px 0" }}>
+              パスワードが違います
+            </p>
+          )}
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              background: "rgba(232,213,163,0.15)",
+              border: "1px solid rgba(232,213,163,0.4)",
+              borderRadius: "10px",
+              color: "#e8d5a3",
+              fontSize: "15px",
+              padding: "14px",
+              cursor: "pointer",
+              letterSpacing: "0.1em",
+            }}
+          >
+            入る
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [unlocked, setUnlocked] = useState(
+    () => localStorage.getItem(STORAGE_KEY) === "ok"
+  );
   const [coldTemp, setColdTemp] = useState(20);
   const [targetTemp, setTargetTemp] = useState(38);
   const [total, setTotal] = useState(150);
+
+  if (!unlocked) {
+    return <PasswordScreen onUnlock={() => setUnlocked(true)} />;
+  }
 
   const isValid = targetTemp > coldTemp && targetTemp < HOT_TEMP;
 
@@ -103,7 +197,6 @@ export default function App() {
   if (isValid) {
     coldG = Math.round(total * (targetTemp - HOT_TEMP) / (coldTemp - HOT_TEMP));
     hotG = total - coldG;
-    // clamp negatives just in case
     if (coldG < 0) coldG = 0;
     if (hotG < 0) hotG = 0;
   }
@@ -123,9 +216,12 @@ export default function App() {
         {/* Title */}
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
           <div style={{ fontSize: "44px", marginBottom: "8px" }}>🌡️</div>
-          <h1 style={{ color: "#e8d5a3", fontSize: "24px", fontWeight: "normal", letterSpacing: "0.12em", margin: "0 0 6px 0" }}>
+          <h1 style={{ color: "#e8d5a3", fontSize: "24px", fontWeight: "normal", letterSpacing: "0.12em", margin: "0 0 4px 0" }}>
             ぬるま湯メーカー
           </h1>
+          <p style={{ color: "#a89060", fontSize: "11px", letterSpacing: "0.1em", margin: "0 0 4px 0" }}>
+            のり米粉パン研究室
+          </p>
           <p style={{ color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.08em", margin: 0 }}>
             水とわかしたてのお湯（100°C）を混ぜる量を計算
           </p>
@@ -211,12 +307,7 @@ export default function App() {
                   <div style={{ color: "#a87840", fontSize: "13px", marginTop: "4px" }}>g</div>
                 </div>
               </div>
-              <div style={{
-                marginTop: "16px",
-                textAlign: "center",
-                color: "#4a6a7a",
-                fontSize: "12px",
-              }}>
+              <div style={{ marginTop: "16px", textAlign: "center", color: "#4a6a7a", fontSize: "12px" }}>
                 合計 {total}g ／ 仕上がり約 {targetTemp}°C
               </div>
             </>
