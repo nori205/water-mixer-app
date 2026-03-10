@@ -259,7 +259,7 @@ export default function App() {
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
           <div style={{ fontSize: "44px", marginBottom: "8px" }}>🌡️</div>
           <h1 style={{ color: "#e8d5a3", fontSize: "24px", fontWeight: "normal", letterSpacing: "0.12em", margin: "0 0 4px 0" }}>
-            米粉パン湯温メーカー
+            米粉パンぬるま湯メーカー
           </h1>
           <p style={{ color: "#a89060", fontSize: "11px", letterSpacing: "0.1em", margin: "0 0 4px 0" }}>
             のり米粉パン研究室
