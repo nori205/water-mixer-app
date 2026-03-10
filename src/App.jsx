@@ -300,6 +300,7 @@ export default function App() {
             unit="°C"
             min={50}
             max={100}
+            step={0.1}
           />
           <NumInput
             label="🎯 目標の温度"
