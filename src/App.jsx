@@ -259,7 +259,7 @@ export default function App() {
         <div style={{ textAlign: "center", marginBottom: "36px" }}>
           <div style={{ fontSize: "44px", marginBottom: "8px" }}>🌡️</div>
           <h1 style={{ color: "#e8d5a3", fontSize: "24px", fontWeight: "normal", letterSpacing: "0.12em", margin: "0 0 4px 0" }}>
-            ぬるま湯メーカー
+            米粉パン湯温メーカー
           </h1>
           <p style={{ color: "#a89060", fontSize: "11px", letterSpacing: "0.1em", margin: "0 0 4px 0" }}>
             のり米粉パン研究室
@@ -360,6 +360,9 @@ export default function App() {
               </div>
               <div style={{ marginTop: "16px", textAlign: "center", color: "#4a6a7a", fontSize: "12px" }}>
                 合計 {total}g ／ 仕上がり約 {targetTemp}°C
+              </div>
+              <div style={{ marginTop: "10px", textAlign: "center", color: "#6b8fa3", fontSize: "12px" }}>
+                🍞 米粉パンの湯温は <span style={{ color: "#e8d5a3" }}>30〜35°C</span> が目安（多少ズレても大丈夫）
               </div>
             </>
           )}
