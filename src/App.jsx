@@ -1,10 +1,30 @@
 import { useState } from "react";
 
-const HOT_TEMP = 100;
 const PASSWORD = "ku-pu25";
 const STORAGE_KEY = "nori_auth";
 
-function NumInput({ label, value, onChange, unit, min, max }) {
+function NumInput({ label, value, onChange, unit, min, max, step = 1 }) {
+  const [text, setText] = useState(String(value));
+
+  const handleText = (e) => {
+    setText(e.target.value);
+    const n = parseFloat(e.target.value);
+    if (!isNaN(n) && n >= min && n <= max) onChange(n);
+  };
+
+  const handleBlur = () => {
+    const n = parseFloat(text);
+    if (isNaN(n) || n < min) { onChange(min); setText(String(min)); }
+    else if (n > max) { onChange(max); setText(String(max)); }
+    else { setText(String(n)); }
+  };
+
+  const handleSlider = (e) => {
+    const n = parseFloat(e.target.value);
+    onChange(n);
+    setText(String(n));
+  };
+
   return (
     <div style={{ marginBottom: "20px" }}>
       <label style={{ display: "block", color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.1em", marginBottom: "8px" }}>
@@ -15,12 +35,33 @@ function NumInput({ label, value, onChange, unit, min, max }) {
           type="range"
           min={min}
           max={max}
+          step={step}
           value={value}
-          onChange={e => onChange(Number(e.target.value))}
+          onChange={handleSlider}
           style={{ flex: 1, accentColor: "#e8d5a3", cursor: "pointer", height: "4px" }}
         />
-        <div style={{ display: "flex", alignItems: "baseline", gap: "4px", minWidth: "80px", justifyContent: "flex-end" }}>
-          <span style={{ color: "#e8d5a3", fontSize: "22px", fontWeight: "bold" }}>{value}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", minWidth: "90px", justifyContent: "flex-end" }}>
+          <input
+            type="number"
+            value={text}
+            onChange={handleText}
+            onBlur={handleBlur}
+            min={min}
+            max={max}
+            step={step}
+            style={{
+              width: "64px",
+              background: "rgba(255,255,255,0.08)",
+              border: "1px solid rgba(232,213,163,0.3)",
+              borderRadius: "6px",
+              color: "#e8d5a3",
+              fontSize: "18px",
+              fontWeight: "bold",
+              textAlign: "right",
+              padding: "2px 6px",
+              outline: "none",
+            }}
+          />
           <span style={{ color: "#a89060", fontSize: "13px" }}>{unit}</span>
         </div>
       </div>
@@ -182,6 +223,7 @@ export default function App() {
     () => localStorage.getItem(STORAGE_KEY) === "ok"
   );
   const [coldTemp, setColdTemp] = useState(20);
+  const [hotTemp, setHotTemp] = useState(100);
   const [targetTemp, setTargetTemp] = useState(38);
   const [total, setTotal] = useState(150);
 
@@ -189,13 +231,13 @@ export default function App() {
     return <PasswordScreen onUnlock={() => setUnlocked(true)} />;
   }
 
-  const isValid = targetTemp > coldTemp && targetTemp < HOT_TEMP;
+  const isValid = targetTemp > coldTemp && targetTemp < hotTemp;
 
   let coldG = null;
   let hotG = null;
 
   if (isValid) {
-    coldG = Math.round(total * (targetTemp - HOT_TEMP) / (coldTemp - HOT_TEMP));
+    coldG = Math.round(total * (targetTemp - hotTemp) / (coldTemp - hotTemp));
     hotG = total - coldG;
     if (coldG < 0) coldG = 0;
     if (hotG < 0) hotG = 0;
@@ -223,7 +265,7 @@ export default function App() {
             のり米粉パン研究室
           </p>
           <p style={{ color: "#6b8fa3", fontSize: "12px", letterSpacing: "0.08em", margin: 0 }}>
-            水とわかしたてのお湯（100°C）を混ぜる量を計算
+            水とお湯を混ぜる量を計算
           </p>
         </div>
 
@@ -249,14 +291,23 @@ export default function App() {
             unit="°C"
             min={1}
             max={40}
+            step={0.1}
+          />
+          <NumInput
+            label="♨️ お湯の温度（測ってね）"
+            value={hotTemp}
+            onChange={v => setHotTemp(Math.max(targetTemp + 1, v))}
+            unit="°C"
+            min={50}
+            max={100}
           />
           <NumInput
             label="🎯 目標の温度"
             value={targetTemp}
-            onChange={v => setTargetTemp(Math.min(99, Math.max(coldTemp + 1, v)))}
+            onChange={v => setTargetTemp(Math.min(hotTemp - 1, Math.max(coldTemp + 1, v)))}
             unit="°C"
             min={coldTemp + 1}
-            max={99}
+            max={hotTemp - 1}
           />
         </div>
 
@@ -271,7 +322,7 @@ export default function App() {
         }}>
           {!isValid ? (
             <p style={{ color: "#e87070", fontSize: "13px", textAlign: "center", margin: 0 }}>
-              ⚠️ 目標温度は水温より高く、100°C未満にしてください
+              ⚠️ 目標温度は水温より高く、お湯の温度より低くしてください
             </p>
           ) : (
             <>
@@ -302,7 +353,7 @@ export default function App() {
                   textAlign: "center",
                 }}>
                   <div style={{ fontSize: "22px", marginBottom: "4px" }}>♨️</div>
-                  <div style={{ color: "#cc9a6b", fontSize: "11px", letterSpacing: "0.08em", marginBottom: "8px" }}>お湯（100°C）</div>
+                  <div style={{ color: "#cc9a6b", fontSize: "11px", letterSpacing: "0.08em", marginBottom: "8px" }}>お湯（{hotTemp}°C）</div>
                   <div style={{ color: "#e8b87a", fontSize: "36px", fontWeight: "bold", lineHeight: 1 }}>{hotG}</div>
                   <div style={{ color: "#a87840", fontSize: "13px", marginTop: "4px" }}>g</div>
                 </div>
